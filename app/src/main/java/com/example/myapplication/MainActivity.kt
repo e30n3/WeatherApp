@@ -132,126 +132,125 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CODE_LOCATION_PERMISSION && grantResults.size > 0) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                currentLocation
+                getCurrentLocation()
             } else {
                 Toast.makeText(this, "Permission denied!", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private val currentLocation: Unit
-        get() {
-            progressBar!!.visibility = View.VISIBLE
-            val locationRequest = LocationRequest()
-            locationRequest.interval = 10000
-            locationRequest.fastestInterval = 3000
-            locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                return
-            }
-            LocationServices.getFusedLocationProviderClient(this@MainActivity)
-                    .requestLocationUpdates(locationRequest, object : LocationCallback() {
-                        @SuppressLint("SetTextI18n")
-                        override fun onLocationResult(locationResult: LocationResult) {
-                            super.onLocationResult(locationResult)
-                            LocationServices.getFusedLocationProviderClient(this@MainActivity)
-                                    .removeLocationUpdates(this)
-                            if (locationResult.locations.size > 0) {
-                                val latestLocationIndex = locationResult.locations.size - 1
-                                val latitude = locationResult.locations[latestLocationIndex].latitude
-                                val longitude = locationResult.locations[latestLocationIndex].longitude
-                                textLatLong.text = String.format(
-                                        "Latitude: %s\nLongitude: %s",
-                                        latitude,
-                                        longitude
-                                )
-                                val weather = Weather()
-                                try {
-                                    val content: String = weather.execute("https://openweathermap.org/data/2.5/weather?lat=$latitude&lon=$longitude&appid=439d4b804bc8187953eb36d2a8c26a02").get()!!
-                                    Log.i("contentData", content)
-                                    val jsonObject = JSONObject(content)
-                                    val weatherData = jsonObject.getString("weather")
-                                    val mainTemperature = jsonObject.getString("main")
-                                    val wind = jsonObject.getString("wind")
-                                    val cityName = jsonObject.getString("name")
-                                    Log.i("weatherData", weatherData)
-                                    val array = JSONArray(weatherData)
-                                    val today = Time(Time.getCurrentTimezone())
-                                    today.setToNow()
-                                    var main = ""
-                                    var description = ""
-                                    var icon = ""
-                                    var temperature = ""
-                                    var feelsLike = ""
-                                    var pressure = ""
-                                    var humidity = ""
-                                    var windSpeed = ""
-                                    for (i in 0 until array.length()) {
-                                        val weatherPart = array.getJSONObject(i)
-                                        main = weatherPart.getString("main")
-                                        description = weatherPart.getString("description")
-                                        icon = weatherPart.getString("icon")
-                                    }
-                                    val mainPart = JSONObject(mainTemperature)
-                                    temperature = mainPart.getString("temp")
-                                    feelsLike = mainPart.getString("feels_like")
-                                    pressure = mainPart.getString("pressure")
-                                    humidity = mainPart.getString("humidity")
-                                    val windPart = JSONObject(wind)
-                                    windSpeed = windPart.getString("speed")
-                                    Log.i("main", main)
-                                    Log.i("description", description)
-                                    Log.i("icon", icon)
-                                    Log.i("temp", temperature)
-                                    Log.i("city", cityName)
-                                    fIcon = icon
-                                    when (icon) {
-                                        "01d" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l01d))
-                                        "01n" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l01n))
-                                        "02d" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l02d))
-                                        "02n" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l02n))
-                                        "03d" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l03d))
-                                        "03n" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l03n))
-                                        "04d" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l04d))
-                                        "04n" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l04n))
-                                        "09d" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l09d))
-                                        "10n" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l10n))
-                                        "10d" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l10d))
-                                        "11n" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l11n))
-                                        "11d" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l11d))
-                                        "13n" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l13n))
-                                        "13d" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l13d))
-                                        "50n" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l50n))
-                                        "50d" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l50d))
-                                    }
-                                    description = description.substring(0, 1).toUpperCase(Locale.ROOT) + description.substring(1)
-                                    textDescription.text = description
-                                    textTemp.text = "$temperature℃"
-                                    textFeels.text = "Feels like: $feelsLike℃"
-                                    textCity.text = cityName + ", " + today.monthDay + "." + (today.month + 1) + "." + today.year + "     " + today.hour + " h " + today.minute + " m"
-                                    textCurrentDetails.text = "Current details:\n\n" +
-                                                    "Pressure          $pressure mBar\n" +
-                                                    "Humidity          $humidity%\n" +
-                                                    "Wind speed     $windSpeed m/s\n"
-                                    saveText()
-                                } catch (e: Exception) {
-                                    e.printStackTrace()
-                                    val toast = Toast.makeText(applicationContext,
-                                            "No internet connection", Toast.LENGTH_SHORT)
-                                    toast.show()
-                                }
-                            }
-                            progressBar.visibility = View.GONE
-                        }
-                    }, Looper.getMainLooper())
+    private fun getCurrentLocation() {
+        progressBar.visibility = View.VISIBLE
+        val locationRequest = LocationRequest()
+        locationRequest.interval = 10000
+        locationRequest.fastestInterval = 3000
+        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return
         }
+        LocationServices.getFusedLocationProviderClient(this@MainActivity)
+                .requestLocationUpdates(locationRequest, object : LocationCallback() {
+                    @SuppressLint("SetTextI18n")
+                    override fun onLocationResult(locationResult: LocationResult) {
+                        super.onLocationResult(locationResult)
+                        LocationServices.getFusedLocationProviderClient(this@MainActivity)
+                                .removeLocationUpdates(this)
+                        if (locationResult.locations.size > 0) {
+                            val latestLocationIndex = locationResult.locations.size - 1
+                            val latitude = locationResult.locations[latestLocationIndex].latitude
+                            val longitude = locationResult.locations[latestLocationIndex].longitude
+                            textLatLong.text = String.format(
+                                    "Latitude: %s\nLongitude: %s",
+                                    latitude,
+                                    longitude
+                            )
+                            val weather = Weather()
+                            try {
+                                val content: String = weather.execute("https://openweathermap.org/data/2.5/weather?lat=$latitude&lon=$longitude&appid=439d4b804bc8187953eb36d2a8c26a02").get()!!
+                                Log.i("contentData", content)
+                                val jsonObject = JSONObject(content)
+                                val weatherData = jsonObject.getString("weather")
+                                val mainTemperature = jsonObject.getString("main")
+                                val wind = jsonObject.getString("wind")
+                                val cityName = jsonObject.getString("name")
+                                Log.i("weatherData", weatherData)
+                                val array = JSONArray(weatherData)
+                                val today = Time(Time.getCurrentTimezone())
+                                today.setToNow()
+                                var main = ""
+                                var description = ""
+                                var icon = ""
+                                var temperature = ""
+                                var feelsLike = ""
+                                var pressure = ""
+                                var humidity = ""
+                                var windSpeed = ""
+                                for (i in 0 until array.length()) {
+                                    val weatherPart = array.getJSONObject(i)
+                                    main = weatherPart.getString("main")
+                                    description = weatherPart.getString("description")
+                                    icon = weatherPart.getString("icon")
+                                }
+                                val mainPart = JSONObject(mainTemperature)
+                                temperature = mainPart.getString("temp")
+                                feelsLike = mainPart.getString("feels_like")
+                                pressure = mainPart.getString("pressure")
+                                humidity = mainPart.getString("humidity")
+                                val windPart = JSONObject(wind)
+                                windSpeed = windPart.getString("speed")
+                                Log.i("main", main)
+                                Log.i("description", description)
+                                Log.i("icon", icon)
+                                Log.i("temp", temperature)
+                                Log.i("city", cityName)
+                                fIcon = icon
+                                when (icon) {
+                                    "01d" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l01d))
+                                    "01n" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l01n))
+                                    "02d" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l02d))
+                                    "02n" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l02n))
+                                    "03d" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l03d))
+                                    "03n" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l03n))
+                                    "04d" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l04d))
+                                    "04n" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l04n))
+                                    "09d" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l09d))
+                                    "10n" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l10n))
+                                    "10d" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l10d))
+                                    "11n" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l11n))
+                                    "11d" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l11d))
+                                    "13n" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l13n))
+                                    "13d" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l13d))
+                                    "50n" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l50n))
+                                    "50d" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l50d))
+                                }
+                                description = description.substring(0, 1).toUpperCase(Locale.ROOT) + description.substring(1)
+                                textDescription.text = description
+                                textTemp.text = "$temperature℃"
+                                textFeels.text = "Feels like: $feelsLike℃"
+                                textCity.text = cityName + ", " + today.monthDay + "." + (today.month + 1) + "." + today.year + "     " + today.hour + " h " + today.minute + " m"
+                                textCurrentDetails.text = "Current details:\n\n" +
+                                        "Pressure          $pressure mBar\n" +
+                                        "Humidity          $humidity%\n" +
+                                        "Wind speed     $windSpeed m/s\n"
+                                saveText()
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                                val toast = Toast.makeText(applicationContext,
+                                        "No internet connection", Toast.LENGTH_SHORT)
+                                toast.show()
+                            }
+                        }
+                        progressBar.visibility = View.GONE
+                    }
+                }, Looper.getMainLooper())
+    }
 
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -278,7 +277,7 @@ class MainActivity : AppCompatActivity() {
                 )
                 swipeRefreshLayout.isRefreshing = false
             } else {
-                currentLocation
+                getCurrentLocation()
                 swipeRefreshLayout.isRefreshing = false
             }
         }
