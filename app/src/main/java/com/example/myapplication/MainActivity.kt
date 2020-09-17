@@ -42,11 +42,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var textFeels: TextView
     private lateinit var textCity: TextView
     private lateinit var textCurrentDetails: TextView
-    private var fIcon: String? = ""
+    private var fIcon: String = ""
     private lateinit var progressBar: ProgressBar
     private lateinit var imageIcon: ImageView
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var sPref: SharedPreferences
+
     private fun saveText() {
         sPref = getSharedPreferences("MyPref", Context.MODE_PRIVATE)
         val ed = sPref.edit()
@@ -76,7 +77,9 @@ class MainActivity : AppCompatActivity() {
         textCurrentDetails.text = savedText
         savedText = sPref.getString("ICON", "")
         Log.i("ICON", fIcon)
-        fIcon = savedText
+        if (savedText != null) {
+            fIcon = savedText
+        }
         when (fIcon) {
             "01d" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l01d))
             "01n" -> imageIcon.setImageDrawable(resources.getDrawable(R.drawable.l01n))
@@ -136,13 +139,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // TODO: Consider calling
-    //    ActivityCompat#requestPermissions
-    // here to request the missing permissions, and then overriding
-    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-    //                                          int[] grantResults)
-    // to handle the case where the user grants the permission. See the documentation
-    // for ActivityCompat#requestPermissions for more details.
     private val currentLocation: Unit
         get() {
             progressBar!!.visibility = View.VISIBLE
