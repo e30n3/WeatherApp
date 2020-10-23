@@ -1,2 +1,3 @@
 # WeatherApp
-Тупо погодное приложение =)
+It's simple app wich can show your current weather
+
