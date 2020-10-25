@@ -136,7 +136,7 @@ class MainFragment : Fragment() {
     }
 
     private fun getCurrentLocation() {
-        progressBar.visibility = View.VISIBLE
+        progressBar.progressiveStart()
         val locationRequest = LocationRequest()
         locationRequest.interval = 10000
         locationRequest.fastestInterval = 3000
@@ -246,7 +246,7 @@ class MainFragment : Fragment() {
                                     toast.show()
                                 }
                             }
-                            progressBar.visibility = View.GONE
+                            progressBar.progressiveStop()
                         }
                     }, Looper.getMainLooper())
         }
@@ -259,6 +259,7 @@ class MainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        progressBar.progressiveStop()
         //TODO: пофиксить
         //loadText()
         swipeRefresh.setOnRefreshListener {
@@ -288,7 +289,6 @@ class MainFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-
         return inflater.inflate(R.layout.fragment_main, container, false)
     }
 

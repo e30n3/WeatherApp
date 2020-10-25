@@ -78,6 +78,8 @@ dependencies {
     debugImplementation 'com.willowtreeapps.hyperion:hyperion-shared-preferences:0.9.30'
     debugImplementation 'com.willowtreeapps.hyperion:hyperion-timber:0.9.30'
 
+    implementation 'com.github.castorflex.smoothprogressbar:library:1.1.0'
+
 
 
     implementation 'androidx.appcompat:appcompat:1.2.0'
