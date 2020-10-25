@@ -18,6 +18,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat.getDrawable
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.navArgs
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -40,7 +41,6 @@ class MainFragment : Fragment() {
 
     val args: MainFragment by navArgs()
     private lateinit var navController: NavController
-
     private var fIcon: String = ""
     private lateinit var sPref: SharedPreferences
 
@@ -136,6 +136,7 @@ class MainFragment : Fragment() {
     }
 
     private fun getCurrentLocation() {
+        progressBar.visibility = View.VISIBLE
         progressBar.progressiveStart()
         val locationRequest = LocationRequest()
         locationRequest.interval = 10000
@@ -258,8 +259,8 @@ class MainFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        navController = NavHostFragment.findNavController(this)
         super.onViewCreated(view, savedInstanceState)
-        progressBar.progressiveStop()
         //TODO: пофиксить
         //loadText()
         swipeRefresh.setOnRefreshListener {
@@ -279,6 +280,10 @@ class MainFragment : Fragment() {
                 getCurrentLocation()
                 swipeRefresh.isRefreshing = false
             }
+        }
+        imageDataBase.setOnClickListener{
+            val action = MainFragmentDirections.actionMainFragmentToDbFragment()
+            navController.navigate(action)
         }
     }
 
