@@ -8,5 +8,14 @@
         android:id="@+id/mainFragment"
         android:name="com.example.myapplication.MainFragment"
         android:label="fragment_main"
-        tools:layout="@layout/fragment_main" />
+        tools:layout="@layout/fragment_main" >
+        <action
+            android:id="@+id/action_mainFragment_to_dbFragment"
+            app:destination="@id/dbFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/dbFragment"
+        android:name="com.example.myapplication.DbFragment"
+        android:label="fragment_db"
+        tools:layout="@layout/fragment_db" />
 </navigation>

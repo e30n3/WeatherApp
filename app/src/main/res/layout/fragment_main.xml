@@ -53,6 +53,7 @@
 
             <ImageView
                 android:id="@+id/imageView"
+                android:padding="8dp"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_marginStart="16dp"
@@ -64,8 +65,10 @@
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@android:drawable/ic_menu_recent_history" />
-
+                android:src="@drawable/iconmonstr_database_1"
+                android:background="@drawable/img_button_animation"
+                android:clickable="true"
+                android:focusable="true" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
 

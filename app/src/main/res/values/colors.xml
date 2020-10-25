@@ -23,6 +23,8 @@
     <color name="gplus_color_2">#f4b400</color>
     <color name="gplus_color_3">#427fed</color>
     <color name="gplus_color_4">#b23424</color>
+    <color name="color_bg_dark">#7CAAFF</color>
+    <color name="color_bg_light">#97C2FF</color>
 
 
 </resources>
