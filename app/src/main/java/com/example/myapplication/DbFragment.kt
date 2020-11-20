@@ -5,9 +5,14 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import com.ivanzaytsev.db.appDB
 import kotlinx.android.synthetic.main.fragment_db.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class DbFragment : Fragment() {
 
@@ -32,6 +37,20 @@ class DbFragment : Fragment() {
         imageHome.setOnClickListener {
             navController.popBackStack()
         }
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            val database = appDB.getInstance(requireContext())
+            val projects = database.projectDao().getAll()
+            withContext(Dispatchers.Main) {
+                projects.forEach { p ->
+                    val str = "${textData.text} ${p.city} ${p.description} ${p.details} ${p.feels} ${p.main} ${p.latlong}\n\n"
+                    textData.text = str
+                }
+
+            }
+        }
+
+
     }
 
 }
