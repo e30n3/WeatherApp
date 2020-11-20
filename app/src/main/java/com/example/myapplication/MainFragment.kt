@@ -17,6 +17,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat.getDrawable
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.navArgs
@@ -24,7 +25,12 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.ivanzaytsev.db.Project
+import com.ivanzaytsev.db.appDB
 import kotlinx.android.synthetic.main.fragment_main.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
@@ -281,9 +287,30 @@ class MainFragment : Fragment() {
                 swipeRefresh.isRefreshing = false
             }
         }
-        imageDataBase.setOnClickListener{
+        imageDataBase.setOnClickListener {
             val action = MainFragmentDirections.actionMainFragmentToDbFragment()
             navController.navigate(action)
+        }
+        imageSave.setOnClickListener {
+            val project = Project(
+                    creation_time = Date(),
+                    latlong = textLatLong.text.toString(),
+                    description = textDescription.text.toString(),
+                    main = textMain.text.toString(),
+                    feels = textFeels.text.toString(),
+                    city = textCity.text.toString(),
+                    details = textCurrentDetails.text.toString()
+            )
+
+            lifecycleScope.launch(Dispatchers.IO) {
+                val database = appDB.getInstance(requireContext())
+                database.projectDao().insert(project)
+                withContext(Dispatchers.Main){
+                    val toast = Toast.makeText(context,
+                            "Saved", Toast.LENGTH_SHORT)
+                    toast.show()
+                }
+            }
         }
     }
 

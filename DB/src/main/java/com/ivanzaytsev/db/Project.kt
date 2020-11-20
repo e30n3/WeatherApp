@@ -11,15 +11,27 @@ import java.util.*
 ) //имя таблицы
 @Parcelize
 class Project(
-    @ColumnInfo(name = "project_name")
-    var project_name: String,
 
-    @ColumnInfo(name = "creation_time", index = true)
-    var creation_time: Date? = null,
+    @ColumnInfo(name = "time", index = true)
+    var creation_time: Date = Date(),
 
-    @ColumnInfo(name = "edit_time", index = true)
-    var edit_time: Date? = null
+    @ColumnInfo(name = "latlong", index = true)
+    var latlong: String = "",
 
+    @ColumnInfo(name = "description", index = true)
+    var description: String = "",
+
+    @ColumnInfo(name = "main", index = true)
+    var main: String = "",
+
+    @ColumnInfo(name = "feels", index = true)
+    var feels: String = "",
+
+    @ColumnInfo(name = "city", index = true)
+    var city: String = "",
+
+    @ColumnInfo(name = "details", index = true)
+    var details: String = ""
 
 ) : Parcelable {
 

@@ -14,7 +14,7 @@ import java.util.concurrent.Executors
 
 @Database(
     entities = [Project::class],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -57,10 +57,6 @@ abstract class appDB : RoomDatabase() {
             if (project.creation_time == null) {
                 project.creation_time = Date()
             }
-        }
-
-        fun setEditTime(project: Project) {
-            project.edit_time = Date()
         }
 
 
