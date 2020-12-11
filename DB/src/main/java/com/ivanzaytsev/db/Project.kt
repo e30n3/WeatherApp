@@ -15,23 +15,8 @@ class Project(
     @ColumnInfo(name = "time", index = true)
     var creation_time: Date = Date(),
 
-    @ColumnInfo(name = "latlong", index = true)
-    var latlong: String = "",
-
-    @ColumnInfo(name = "description", index = true)
-    var description: String = "",
-
-    @ColumnInfo(name = "main", index = true)
-    var main: String = "",
-
-    @ColumnInfo(name = "feels", index = true)
-    var feels: String = "",
-
-    @ColumnInfo(name = "city", index = true)
-    var city: String = "",
-
-    @ColumnInfo(name = "details", index = true)
-    var details: String = ""
+    @ColumnInfo(name = "content", index = true)
+    var content: String = ""
 
 ) : Parcelable {
 

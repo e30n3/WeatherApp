@@ -14,7 +14,7 @@ import java.util.concurrent.Executors
 
 @Database(
     entities = [Project::class],
-    version = 2,
+    version = 3,
     exportSchema = true
 )
 @TypeConverters(Converters::class)

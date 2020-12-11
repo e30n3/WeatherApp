@@ -43,7 +43,7 @@ class DbFragment : Fragment() {
             val projects = database.projectDao().getAll()
             withContext(Dispatchers.Main) {
                 projects.forEach { p ->
-                    val str = "${textData.text} ${p.city} ${p.description} ${p.details} ${p.feels} ${p.main} ${p.latlong}\n\n"
+                    val str = "${textData.text} ${p.content}\n\n"
                     textData.text = str
                 }
 

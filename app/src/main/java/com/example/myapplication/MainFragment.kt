@@ -179,6 +179,7 @@ class MainFragment : Fragment() {
                                 try {
                                     val content: String = weather.execute("https://openweathermap.org/data/2.5/weather?lat=$latitude&lon=$longitude&appid=439d4b804bc8187953eb36d2a8c26a02").get()!!
                                     Log.i("contentData", content)
+                                    weatherContent = content
                                     val jsonObject = JSONObject(content)
                                     val weatherData = jsonObject.getString("weather")
                                     val mainTemperature = jsonObject.getString("main")
@@ -294,12 +295,7 @@ class MainFragment : Fragment() {
         imageSave.setOnClickListener {
             val project = Project(
                     creation_time = Date(),
-                    latlong = textLatLong.text.toString(),
-                    description = textDescription.text.toString(),
-                    main = textMain.text.toString(),
-                    feels = textFeels.text.toString(),
-                    city = textCity.text.toString(),
-                    details = textCurrentDetails.text.toString()
+                    content = weatherContent
             )
 
             lifecycleScope.launch(Dispatchers.IO) {
@@ -316,6 +312,7 @@ class MainFragment : Fragment() {
 
     companion object {
         private const val REQUEST_CODE_LOCATION_PERMISSION = 1
+        private var weatherContent = ""
     }
 
 
