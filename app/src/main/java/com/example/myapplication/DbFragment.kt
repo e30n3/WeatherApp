@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.myapplication.adapters.RecyclerViewAdapter
 import com.ivanzaytsev.db.appDB
 import kotlinx.android.synthetic.main.fragment_db.*
 import kotlinx.coroutines.Dispatchers
@@ -33,6 +35,8 @@ class DbFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+
         navController = NavHostFragment.findNavController(this)
         imageHome.setOnClickListener {
             navController.popBackStack()
@@ -42,10 +46,7 @@ class DbFragment : Fragment() {
             val database = appDB.getInstance(requireContext())
             val projects = database.projectDao().getAll()
             withContext(Dispatchers.Main) {
-                projects.forEach { p ->
-                    val str = "${textData.text} ${p.content}\n\n"
-                    textData.text = str
-                }
+                recyclerView.adapter = RecyclerViewAdapter(projects, resources)
 
             }
         }

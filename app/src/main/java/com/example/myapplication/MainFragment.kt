@@ -28,6 +28,7 @@ import com.google.android.gms.location.LocationServices
 import com.ivanzaytsev.db.Project
 import com.ivanzaytsev.db.appDB
 import kotlinx.android.synthetic.main.fragment_main.*
+import kotlinx.android.synthetic.main.item_save.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -263,6 +264,7 @@ class MainFragment : Fragment() {
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -270,6 +272,95 @@ class MainFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         //TODO: пофиксить
         //loadText()
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            val database = appDB.getInstance(requireContext())
+            val projects = database.projectDao().getAll()
+            withContext(Dispatchers.Main) {
+                if (projects.isEmpty()) {
+                    if (context?.let {
+                                ContextCompat.checkSelfPermission(
+                                        it, Manifest.permission.ACCESS_FINE_LOCATION
+                                )
+                            } != PackageManager.PERMISSION_GRANTED) {
+                        activity?.let {
+                            ActivityCompat.requestPermissions(
+                                    it, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                                    REQUEST_CODE_LOCATION_PERMISSION
+                            )
+                        }
+                        swipeRefresh.isRefreshing = false
+                    } else {
+                        getCurrentLocation()
+                        swipeRefresh.isRefreshing = false
+                    }
+                } else {
+                    val project = projects.last()
+                    weatherContent = project.content
+                    val jsonObject = JSONObject(project.content)
+                    val weatherData = jsonObject.getString("weather")
+                    val mainTemperature = jsonObject.getString("main")
+                    val wind = jsonObject.getString("wind")
+                    val cityName = jsonObject.getString("name")
+                    Log.i("weatherData", weatherData)
+                    val array = JSONArray(weatherData)
+                    val date = project.creation_time
+                    var description = ""
+                    var icon = ""
+                    val temperature: String
+                    val feelsLike: String
+                    val pressure: String
+                    val humidity: String
+                    val windSpeed: String
+                    for (i in 0 until array.length()) {
+                        val weatherPart = array.getJSONObject(i)
+                        description = weatherPart.getString("description")
+                        icon = weatherPart.getString("icon")
+                    }
+                    val mainPart = JSONObject(mainTemperature)
+                    temperature = mainPart.getString("temp")
+                    feelsLike = mainPart.getString("feels_like")
+                    pressure = mainPart.getString("pressure")
+                    humidity = mainPart.getString("humidity")
+                    val windPart = JSONObject(wind)
+                    windSpeed = windPart.getString("speed")
+                    fIcon = icon
+                    when (icon) {
+                        "01d" -> iconImageView.setImageDrawable(getDrawable(resources, R.drawable.l01d, null))
+                        "01n" -> iconImageView.setImageDrawable(getDrawable(resources, R.drawable.l01n, null))
+                        "02d" -> iconImageView.setImageDrawable(getDrawable(resources, R.drawable.l02d, null))
+                        "02n" -> iconImageView.setImageDrawable(getDrawable(resources, R.drawable.l02n, null))
+                        "03d" -> iconImageView.setImageDrawable(getDrawable(resources, R.drawable.l03d, null))
+                        "03n" -> iconImageView.setImageDrawable(getDrawable(resources, R.drawable.l03n, null))
+                        "04d" -> iconImageView.setImageDrawable(getDrawable(resources, R.drawable.l04d, null))
+                        "04n" -> iconImageView.setImageDrawable(getDrawable(resources, R.drawable.l04n, null))
+                        "09d" -> iconImageView.setImageDrawable(getDrawable(resources, R.drawable.l09d, null))
+                        "10n" -> iconImageView.setImageDrawable(getDrawable(resources, R.drawable.l10n, null))
+                        "10d" -> iconImageView.setImageDrawable(getDrawable(resources, R.drawable.l10d, null))
+                        "11n" -> iconImageView.setImageDrawable(getDrawable(resources, R.drawable.l11n, null))
+                        "11d" -> iconImageView.setImageDrawable(getDrawable(resources, R.drawable.l11d, null))
+                        "13n" -> iconImageView.setImageDrawable(getDrawable(resources, R.drawable.l13n, null))
+                        "13d" -> iconImageView.setImageDrawable(getDrawable(resources, R.drawable.l13d, null))
+                        "50n" -> iconImageView.setImageDrawable(getDrawable(resources, R.drawable.l50n, null))
+                        "50d" -> iconImageView.setImageDrawable(getDrawable(resources, R.drawable.l50d, null))
+                    }
+                    description = description.substring(0, 1).toUpperCase(Locale.ROOT) + description.substring(1)
+                    textDescription.text = description
+                    textMain.text = "$temperature℃"
+                    textFeels.text = "Feels like: $feelsLike℃"
+                    val sm =
+                            SimpleDateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT)
+                    textCity.text = "$cityName, ${sm.format(date)}"
+                    textCurrentDetails.text = "Current details:\n\n" +
+                            "Pressure          $pressure mBar\n" +
+                            "Humidity          $humidity%\n" +
+                            "Wind speed     $windSpeed m/s\n"
+                }
+            }
+
+        }
+
+
         swipeRefresh.setOnRefreshListener {
             if (context?.let {
                         ContextCompat.checkSelfPermission(
@@ -301,7 +392,7 @@ class MainFragment : Fragment() {
             lifecycleScope.launch(Dispatchers.IO) {
                 val database = appDB.getInstance(requireContext())
                 database.projectDao().insert(project)
-                withContext(Dispatchers.Main){
+                withContext(Dispatchers.Main) {
                     val toast = Toast.makeText(context,
                             "Saved", Toast.LENGTH_SHORT)
                     toast.show()
