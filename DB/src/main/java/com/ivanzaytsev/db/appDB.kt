@@ -34,21 +34,16 @@ abstract class appDB : RoomDatabase() {
             context: Context,
             scope: CoroutineScope
         ): appDB {
-            // if the INSTANCE is not null, then return it,
-            // if it is, then create the database
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     appDB::class.java,
                     "database"
                 )
-                    // Wipes and rebuilds instead of migrating if no Migration object.
-                    // Migration is not part of this codelab.
                     .fallbackToDestructiveMigration()
                     .addCallback(appDBCallback(scope))
                     .build()
                 INSTANCE = instance
-                // return instance
                 instance
             }
         }
@@ -68,8 +63,6 @@ abstract class appDB : RoomDatabase() {
                         context.applicationContext,
                         appDB::class.java, "database"
                     )
-
-
                         .fallbackToDestructiveMigration()
                         .build()
                 }
